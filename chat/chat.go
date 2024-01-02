@@ -65,6 +65,9 @@ type CreateMMCompletionParams struct {
 	Stop     []string     `json:"stop,omitempty"`
 	Stream   bool         `json:"stream,omitempty"`
 
+	Functions    []Function `json:"functions,omitempty"`
+	FunctionCall string     `json:"function_call,omitempty"`
+
 	N           int     `json:"n,omitempty"`
 	TopP        float64 `json:"top_p,omitempty"`
 	Temperature float64 `json:"temperature,omitempty"`
@@ -100,8 +103,10 @@ type Message struct {
 }
 
 type MMMessage struct {
-	Role    string    `json:"role,omitempty"`
-	Content []Content `json:"content,omitempty"`
+	Role         string        `json:"role,omitempty"`
+	FunctionCall *FunctionCall `json:"function_call,omitempty"`
+	Content      []Content     `json:"content,omitempty"`
+	Name         string        `json:"name,omitempty"`
 }
 
 type ImageURL struct {
