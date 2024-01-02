@@ -16,7 +16,7 @@ func main() {
 	client := chat.NewClient(s, "gpt-3.5-turbo")
 	resp, err := client.CreateCompletion(ctx, &chat.CreateCompletionParams{
 		Messages: []*chat.Message{
-			{Role: "user", Content: []chat.Content{chat.NewContentFromText("hello")}},
+			{Role: "user", Content: "hello"},
 		},
 	})
 	if err != nil {
