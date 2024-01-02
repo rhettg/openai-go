@@ -3,7 +3,9 @@ package chat
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"strings"
 
 	"github.com/rakyll/openai-go"
 )
@@ -73,10 +75,66 @@ type Choice struct {
 }
 
 type Message struct {
-	Role         string        `json:"role"`
-	Content      string        `json:"content"`
-	Name         string        `json:"name,omitempty"`
+	Role         string        `json:"role,omitempty"`
 	FunctionCall *FunctionCall `json:"function_call,omitempty"`
+	Content      []Content     `json:"content,omitempty"`
+	Name         string        `json:"name,omitempty"`
+}
+
+type ImageURL struct {
+	URL    string `json:"url"`
+	Detail string `json:"detail,omitempty"`
+}
+
+type Content struct {
+	Type     string   `json:"type"`
+	Text     string   `json:"text,omitempty"`
+	ImageURL ImageURL `json:"image_url,omitempty"`
+}
+
+// NewContentFromImage creates a new Content from image data.
+func NewContentFromImage(mime_type string, d []byte) (Content, error) {
+	if !strings.HasPrefix(mime_type, "image/") {
+		return Content{}, errors.New("mime_type must be image/*")
+	}
+
+	// Based on the python reference code in
+	// https://platform.openai.com/docs/guides/vision/uploading-base-64-encoded-images
+	// this should be the parallel of:
+	//     base64.b64encode(image_file.read()).decode('utf-8')
+	// which defaults to the standard base64 encoding.  I would have guessed
+	// it would be using the URL-safe encoding but that isn't what the code is
+	// saying.
+	dst := make([]byte, base64.StdEncoding.EncodedLen(len(d)))
+	base64.StdEncoding.Encode(dst, d)
+
+	image_url := strings.Builder{}
+	image_url.WriteString("data:")
+	image_url.WriteString(mime_type)
+	image_url.WriteString(";base64,")
+	image_url.Write(dst)
+
+	url := ImageURL{
+		URL: image_url.String(),
+	}
+
+	return Content{Type: "image_url", ImageURL: url}, nil
+}
+
+func NewContentFromImageURL(url string) Content {
+	return Content{
+		Type: "image_url",
+		ImageURL: ImageURL{
+			URL: url,
+		},
+	}
+}
+
+func NewContentFromText(text string) Content {
+	return Content{
+		Type: "text",
+		Text: text,
+	}
 }
 
 func (c *Client) CreateCompletion(ctx context.Context, p *CreateCompletionParams) (*CreateCompletionResponse, error) {
