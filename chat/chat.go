@@ -55,6 +55,24 @@ type CreateCompletionParams struct {
 	User string `json:"user,omitempty"`
 }
 
+type CreateMMCompletionParams struct {
+	Model string `json:"model,omitempty"`
+
+	Messages []*MMMessage `json:"messages,omitempty"`
+	Stop     []string     `json:"stop,omitempty"`
+	Stream   bool         `json:"stream,omitempty"`
+
+	N           int     `json:"n,omitempty"`
+	TopP        float64 `json:"top_p,omitempty"`
+	Temperature float64 `json:"temperature,omitempty"`
+	MaxTokens   int     `json:"max_tokens,omitempty"`
+
+	PresencePenalty  float64 `json:"presence_penalty,omitempty"`
+	FrequencyPenalty float64 `json:"frequency_penalty,omitempty"`
+
+	User string `json:"user,omitempty"`
+}
+
 type CreateCompletionResponse struct {
 	ID        string    `json:"id,omitempty"`
 	Object    string    `json:"object,omitempty"`
@@ -72,9 +90,14 @@ type Choice struct {
 }
 
 type Message struct {
+	Role    string `json:"role,omitempty"`
+	Content string `json:"content,omitempty"`
+	Name    string `json:"name,omitempty"`
+}
+
+type MMMessage struct {
 	Role    string    `json:"role,omitempty"`
 	Content []Content `json:"content,omitempty"`
-	Name    string    `json:"name,omitempty"`
 }
 
 type ImageURL struct {
@@ -134,6 +157,22 @@ func NewContentFromText(text string) Content {
 }
 
 func (c *Client) CreateCompletion(ctx context.Context, p *CreateCompletionParams) (*CreateCompletionResponse, error) {
+	if p.Model == "" {
+		p.Model = c.model
+	}
+	if p.Stream {
+		return nil, errors.New("use StreamingClient instead")
+	}
+
+	var r CreateCompletionResponse
+	if err := c.s.MakeRequest(ctx, c.CreateCompletionEndpoint, p, &r); err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+// CreateMMCompletion is the multi-modal version of CreateCompletion.
+func (c *Client) CreateMMCompletion(ctx context.Context, p *CreateMMCompletionParams) (*CreateCompletionResponse, error) {
 	if p.Model == "" {
 		p.Model = c.model
 	}
