@@ -31,5 +31,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("error transcribing file: %v", err)
 	}
+
 	log.Println(resp.Text)
+
+	of, err := os.OpenFile("speech.aac", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("error opening speech file: %v", err)
+	}
+
+	err = client.CreateSpeech(ctx, &audio.CreateSpeechParams{
+		Model:          "tts-1",
+		Voice:          "nova",
+		ResponseFormat: "aac",
+		Input:          resp.Text,
+	}, of)
+	if err != nil {
+		log.Fatalf("error creating speech: %v", err)
+	}
+
+	err = of.Close()
+	if err != nil {
+		log.Fatalf("error saving output file: %v", err)
+	}
+
+	log.Println("saved speech file to speech.aac")
 }

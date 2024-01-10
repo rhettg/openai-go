@@ -11,7 +11,10 @@ import (
 	"github.com/rakyll/openai-go"
 )
 
-const defaultCreateTranscriptionEndpoint = "https://api.openai.com/v1/audio/transcriptions"
+const (
+	defaultCreateTranscriptionEndpoint = "https://api.openai.com/v1/audio/transcriptions"
+	defaultCreateSpeechEndpoint        = "https://api.openai.com/v1/audio/speech"
+)
 
 // Client is a client to communicate with Open AI's ChatGPT APIs.
 type Client struct {
@@ -21,6 +24,7 @@ type Client struct {
 	// CreateTranscriptionEndpoint allows overriding the default API endpoint.
 	// Set this field before using the client.
 	CreateTranscriptionEndpoint string
+	CreateSpeechEndpoint        string
 }
 
 // NewClient creates a new default client that uses the given session
@@ -33,6 +37,7 @@ func NewClient(session *openai.Session, model string) *Client {
 		s:                           session,
 		model:                       model,
 		CreateTranscriptionEndpoint: defaultCreateTranscriptionEndpoint,
+		CreateSpeechEndpoint:        defaultCreateSpeechEndpoint,
 	}
 }
 
@@ -68,4 +73,28 @@ func (c *Client) CreateTranscription(ctx context.Context, p *CreateTranscription
 	}
 	var r CreateTranscriptionResponse
 	return &r, c.s.Upload(ctx, c.CreateTranscriptionEndpoint, p.Audio, p.AudioFormat, params, &r)
+}
+
+type CreateSpeechParams struct {
+	Model          string `json:"model"`
+	Input          string `json:"input"`
+	Voice          string `json:"voice,omitempty"`
+	ResponseFormat string `json:"response_format,omitempty"`
+	Speed          int    `json:"speed,omitempty"`
+}
+
+func (c *Client) CreateSpeech(ctx context.Context, p *CreateSpeechParams, w io.Writer) error {
+	if p.Voice == "" {
+		return fmt.Errorf("voice is required")
+	}
+	if p.Model == "" {
+		p.Model = c.model
+	}
+
+	err := c.s.Download(ctx, c.CreateSpeechEndpoint, p, w)
+	if err != nil {
+		return fmt.Errorf("failed to download speech: %v", err)
+	}
+
+	return nil
 }
