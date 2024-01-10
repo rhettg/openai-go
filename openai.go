@@ -127,6 +127,29 @@ func (s *Session) Upload(ctx context.Context, endpoint string, file io.Reader, f
 	return json.NewDecoder(respBody).Decode(output)
 }
 
+// Download makes a JSON POST request and downloads the response to the provided
+// writer.
+func (s *Session) Download(ctx context.Context, endpoint string, input any, w io.Writer) error {
+	reqBody, err := json.Marshal(input)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(reqBody))
+	if err != nil {
+		return err
+	}
+
+	respBody, err := s.makeRequest(req, "application/json")
+	if err != nil {
+		return err
+	}
+	defer respBody.Close()
+
+	_, err = io.Copy(w, respBody)
+	return err
+}
+
 func (s *Session) makeRequest(req *http.Request, contentType string) (io.ReadCloser, error) {
 	if s.apiKey != "" {
 		req.Header.Set("Authorization", "Bearer "+s.apiKey)
