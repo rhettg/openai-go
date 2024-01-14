@@ -3,7 +3,7 @@ package chat
 import (
 	"context"
 
-	"github.com/rakyll/openai-go"
+	"github.com/rhettg/openai-go"
 )
 
 // StreamingClient is a client to communicate with Open AI's ChatGPT APIs.

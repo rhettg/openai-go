@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/url"
 
-	"github.com/rakyll/openai-go"
+	"github.com/rhettg/openai-go"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/rakyll/openai-go"
+	"github.com/rhettg/openai-go"
 )
 
 const defaultCreateEndpoint = "https://api.openai.com/v1/completions"

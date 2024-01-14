@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/rakyll/openai-go"
-	"github.com/rakyll/openai-go/chat"
+	"github.com/rhettg/openai-go"
+	"github.com/rhettg/openai-go/chat"
 )
 
 func main() {

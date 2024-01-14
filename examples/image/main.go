@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/rakyll/openai-go"
-	"github.com/rakyll/openai-go/image"
+	"github.com/rhettg/openai-go"
+	"github.com/rhettg/openai-go/image"
 )
 
 func main() {

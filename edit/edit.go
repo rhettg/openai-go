@@ -4,7 +4,7 @@ package edit
 import (
 	"context"
 
-	"github.com/rakyll/openai-go"
+	"github.com/rhettg/openai-go"
 )
 
 const defaultCreateEndpoint = "https://api.openai.com/v1/edits"

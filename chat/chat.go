@@ -7,7 +7,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/rakyll/openai-go"
+	"github.com/rhettg/openai-go"
 )
 
 const defaultModel = "gpt-3.5-turbo"
